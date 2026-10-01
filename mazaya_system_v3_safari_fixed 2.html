@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0c1016">
+<title>مزايا | نظام المبيعات</title>
+<style>
+:root{
+  --bg:#0c1016; --card:#151b24; --card2:#1d2531; --line:#2d3746;
+  --text:#f7f8fa; --muted:#aeb8c7; --gold:#d5ab52; --gold2:#f0d28f;
+  --ok:#2fb874; --danger:#ef5c5c; --blue:#4da3ff;
+}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(180deg,#0c1016,#111722);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,Arial,sans-serif}
+.app{max-width:980px;margin:auto;padding:16px 14px 40px}
+.header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px 0 16px}
+.brand h1{margin:0;font-size:27px}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}
+.badge{padding:8px 10px;border-radius:999px;border:1px solid #574a2e;background:#1f1b12;color:var(--gold2);font-size:12px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.stat{background:rgba(21,27,36,.96);border:1px solid var(--line);border-radius:16px;padding:14px}
+.stat .label{font-size:12px;color:var(--muted)}.stat .value{font-size:22px;font-weight:800;margin-top:7px}
+.panel{margin-top:14px;background:rgba(21,27,36,.97);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:0 14px 40px rgba(0,0,0,.18)}
+.panel h2{font-size:18px;margin:0 0 14px}
+.barcode{display:grid;grid-template-columns:1fr 150px;gap:8px}
+label{display:block;color:var(--muted);font-size:12px;margin:0 0 6px}
+input,select,button{width:100%;border-radius:13px;border:1px solid var(--line);padding:13px 14px;font-size:16px}
+input,select{background:var(--card2);color:var(--text);outline:none}
+input:focus,select:focus{border-color:#6e7b91}
+button{cursor:pointer;background:var(--gold);color:#17130b;font-weight:800}
+button.secondary{background:var(--card2);color:var(--text)}
+.formgrid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;margin-top:12px}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.totalbox{background:#10151c;border:1px dashed #556174;border-radius:14px;padding:14px;text-align:center}
+.totalbox .t1{font-size:12px;color:var(--muted)}.totalbox .t2{font-size:30px;font-weight:900;color:var(--gold2);margin-top:4px}
+.split{display:none;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.notice,.error{display:none;margin-top:12px;padding:12px;border-radius:12px;font-weight:700}
+.notice{background:rgba(47,184,116,.13);border:1px solid rgba(47,184,116,.45);color:#c7f4dc}
+.error{background:rgba(239,92,92,.12);border:1px solid rgba(239,92,92,.4);color:#ffd1d1}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.tablewrap{overflow:auto}
+table{width:100%;border-collapse:collapse;min-width:680px}
+th,td{padding:11px 10px;border-bottom:1px solid var(--line);text-align:right;font-size:13px}
+th{color:var(--muted);font-weight:600}
+.pill{display:inline-block;padding:5px 8px;border-radius:999px;background:#28313f}
+.empty{color:var(--muted);padding:12px 0}
+.footerhint{color:var(--muted);font-size:12px;margin-top:8px}
+@media(max-width:720px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .formgrid,.twocol,.split,.actions,.barcode{grid-template-columns:1fr}
+  .stat .value{font-size:20px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="brand">
+      <h1>مزايا</h1>
+      <p>نظام المبيعات والمخزون — نسخة تجريبية متطورة</p>
+    </div>
+    <div class="badge">نسخة v3</div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="label">مبيعات اليوم</div><div class="value" id="salesToday">0.00</div></div>
+    <div class="stat"><div class="label">الكاش</div><div class="value" id="cashToday">0.00</div></div>
+    <div class="stat"><div class="label">البنكك / البنك</div><div class="value" id="bankToday">0.00</div></div>
+    <div class="stat"><div class="label">الآجل</div><div class="value" id="creditToday">0.00</div></div>
+  </div>
+
+  <div class="panel">
+    <h2>بيع جديد</h2>
+
+    <div class="barcode">
+      <div>
+        <label>باركود المنتج</label>
+        <input id="barcode" placeholder="امسح الباركود أو اكتبه">
+      </div>
+      <div style="align-self:end">
+        <button type="button" class="secondary" onclick="cameraInfo()">📷 مسح بالكاميرا</button>
+      </div>
+    </div>
+
+    <div class="formgrid">
+      <div>
+        <label>اسم المنتج</label>
+        <input id="product" placeholder="مثال: فلير دمور سوداني">
+      </div>
+      <div>
+        <label>سعر الوحدة</label>
+        <input id="price" inputmode="decimal" placeholder="30">
+      </div>
+      <div>
+        <label>الكمية</label>
+        <input id="qty" inputmode="numeric" value="1">
+      </div>
+    </div>
+
+    <div class="twocol">
+      <div>
+        <label>طريقة الدفع</label>
+        <select id="payment" onchange="paymentChanged()">
+          <option value="cash">كاش</option>
+          <option value="bank">بنكك / بنك</option>
+          <option value="split">كاش + بنكك</option>
+          <option value="credit">آجل</option>
+        </select>
+      </div>
+      <div class="totalbox">
+        <div class="t1">الإجمالي</div>
+        <div class="t2" id="total">0.00</div>
+      </div>
+    </div>
+
+    <div class="split" id="splitWrap">
+      <div>
+        <label>المبلغ كاش</label>
+        <input id="cashPart" inputmode="decimal" placeholder="0">
+      </div>
+      <div>
+        <label>الباقي بنكك / بنك</label>
+        <input id="bankPart" readonly value="0.00">
+      </div>
+    </div>
+
+    <div style="margin-top:10px">
+      <label>ملاحظات</label>
+      <input id="notes" placeholder="اختياري">
+    </div>
+
+    <div class="actions">
+      <button type="button" id="saveSaleBtn">حفظ البيع</button>
+      <button type="button" class="secondary" onclick="clearForm()">مسح الخانات</button>
+    </div>
+
+    <div class="notice" id="ok">✅ تم حفظ البيع بنجاح.</div>
+    <div class="error" id="err"></div>
+    <div class="footerhint">ملاحظة: البيانات في النسخة التجريبية تحفظ داخل الجهاز إذا سمح المتصفح بذلك.</div>
+  </div>
+
+  <div class="panel">
+    <h2>آخر العمليات</h2>
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr><th>الوقت</th><th>المنتج</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th><th>الدفع</th></tr>
+        </thead>
+        <tbody id="salesBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const amap={'٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9','٫':'.','٬':''};
+function n(v){return Number(String(v||'').replace(/[٠-٩٫٬]/g,c=>amap[c]).replace(/,/g,''))||0}
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function todayKey(){let d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+let memorySales=[];
+function loadSales(){
+  try{
+    let x=localStorage.getItem('mazaya_v3_sales');
+    if(x) memorySales=JSON.parse(x);
+  }catch(e){}
+  return memorySales;
+}
+function persist(rows){
+  memorySales=rows;
+  try{localStorage.setItem('mazaya_v3_sales',JSON.stringify(rows))}catch(e){}
+}
+function calc(){
+  let t=n($('price').value)*n($('qty').value);
+  $('total').textContent=t.toFixed(2);
+  updateSplit();
+  return t;
+}
+function updateSplit(){
+  if($('payment').value!=='split') return;
+  let total=n($('price').value)*n($('qty').value);
+  let c=n($('cashPart').value);
+  $('bankPart').value=Math.max(0,total-c).toFixed(2);
+}
+function paymentChanged(){
+  $('splitWrap').style.display=$('payment').value==='split'?'grid':'none';
+  updateSplit();
+}
+$('price').addEventListener('input',calc);
+$('qty').addEventListener('input',calc);
+$('cashPart').addEventListener('input',updateSplit);
+
+function saveSale(){
+  $('ok').style.display='none';$('err').style.display='none';
+  let product=$('product').value.trim();
+  let price=n($('price').value), qty=n($('qty').value), total=price*qty;
+  let payment=$('payment').value;
+  if(!product){showErr('اكتب اسم المنتج.');return}
+  if(price<=0){showErr('أدخل سعر صحيح أكبر من صفر.');return}
+  if(qty<=0){showErr('أدخل كمية صحيحة أكبر من صفر.');return}
+  let cash=0,bank=0,credit=0;
+  if(payment==='cash') cash=total;
+  if(payment==='bank') bank=total;
+  if(payment==='credit') credit=total;
+  if(payment==='split'){
+    cash=n($('cashPart').value);
+    if(cash<0 || cash>total){showErr('مبلغ الكاش لازم يكون بين صفر والإجمالي.');return}
+    bank=total-cash;
+  }
+  let now=new Date();
+  let row={
+    id:Date.now(),day:todayKey(),
+    time:now.toLocaleTimeString('ar-AE',{hour:'2-digit',minute:'2-digit'}),
+    product,price,qty,total,payment,cash,bank,credit,
+    barcode:$('barcode').value.trim(),notes:$('notes').value.trim()
+  };
+  let rows=loadSales();rows.push(row);persist(rows);
+  render();
+  $('ok').style.display='block';
+  clearForm(false);
+}
+function showErr(msg){$('err').textContent=msg;$('err').style.display='block'}
+function clearForm(hideMessages=true){
+  $('barcode').value='';$('product').value='';$('price').value='';$('qty').value='1';
+  $('payment').value='cash';$('cashPart').value='';$('bankPart').value='0.00';$('notes').value='';
+  $('splitWrap').style.display='none';calc();
+  if(hideMessages){$('ok').style.display='none';$('err').style.display='none'}
+}
+function payName(v){return({cash:'كاش',bank:'بنكك / بنك',split:'كاش + بنكك',credit:'آجل'})[v]||v}
+function render(){
+  let rows=loadSales(),today=todayKey(),sales=0,cash=0,bank=0,credit=0;
+  rows.filter(r=>r.day===today).forEach(r=>{sales+=r.total;cash+=r.cash||0;bank+=r.bank||0;credit+=r.credit||0});
+  $('salesToday').textContent=sales.toFixed(2);$('cashToday').textContent=cash.toFixed(2);
+  $('bankToday').textContent=bank.toFixed(2);$('creditToday').textContent=credit.toFixed(2);
+  let body=rows.slice().reverse().slice(0,20).map(r=>`
+    <tr>
+      <td>${r.time}</td><td>${esc(r.product)}</td><td>${r.qty}</td>
+      <td>${r.price.toFixed(2)}</td><td>${r.total.toFixed(2)}</td>
+      <td><span class="pill">${payName(r.payment)}</span></td>
+    </tr>`).join('');
+  $('salesBody').innerHTML=body||'<tr><td colspan="6" class="empty">ما في عمليات محفوظة لسه.</td></tr>';
+}
+function cameraInfo(){
+  alert('ميزة المسح بالكاميرا تشتغل بصورة كاملة بعد رفع النظام على رابط HTTPS حقيقي.');
+}
+calc();render();
+
+document.addEventListener('DOMContentLoaded', function(){
+  var btn=document.getElementById('saveSaleBtn');
+  if(btn){
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      try { saveSale(); }
+      catch(err){
+        var box=document.getElementById('err');
+        if(box){ box.textContent='تعذر حفظ البيع: '+err.message; box.style.display='block'; }
+      }
+    });
+  }
+});
+
+</script>
+</body>
+</html>
